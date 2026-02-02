@@ -3,159 +3,3103 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="TinyPrompters Agent Mission Control Dashboard">
-  <meta name="theme-color" content="#0f172a">
-  <title>TinyPrompters | Agent Mission Control</title>
+  <meta name="description" content="TinyPrompters Agent Mission Control - Professional AI Agent Dashboard">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Mission Control | TinyPrompters</title>
+  
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="preconnect" href="https://unpkg.com">
+  
+  <!-- Google Fonts - Inter -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  
   <style>
-    :root{--primary:#2563eb;--primary-dark:#1d4ed8;--success:#22c55e;--warning:#f59e0b;--danger:#ef4444;--bg-dark:#0f172a;--bg-card:#1e293b;--text:#f1f5f9;--text-muted:#94a3b8;--border:#334155}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg-dark);color:var(--text);min-height:100vh;line-height:1.5}
-    .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--bg-dark) 0%,#1e1b4b 100%)}
-    .login-box{background:var(--bg-card);padding:2.5rem;border-radius:1rem;box-shadow:0 25px 50px -12px rgba(0,0,0,0.5);text-align:center;max-width:400px;width:90%;border:1px solid var(--border)}
-    .login-box h1{font-size:1.75rem;margin-bottom:0.5rem;font-weight:800}
-    .login-box .subtitle{color:var(--text-muted);margin-bottom:1.5rem}
-    .login-box input{width:100%;padding:0.875rem 1rem;border:1px solid var(--border);border-radius:0.5rem;background:var(--bg-dark);color:var(--text);font-size:1rem;margin-bottom:1rem;transition:border-color .2s}
-    .login-box input:focus{outline:none;border-color:var(--primary)}
-    .login-box button{width:100%;padding:0.875rem;background:var(--primary);color:white;border:none;border-radius:0.5rem;font-size:1rem;font-weight:600;cursor:pointer;transition:background .2s}
-    .login-box button:hover{background:var(--primary-dark)}
-    .error-msg{color:var(--danger);margin-top:1rem;font-size:0.875rem}
-    .dashboard{display:none}
-    .dashboard.active{display:block;animation:fadeIn .3s ease}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    .header{background:var(--bg-card);border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
-    .header h1{font-size:1.25rem;font-weight:700;display:flex;align-items:center;gap:0.5rem}
-    .header-logo{width:32px;height:32px;background:linear-gradient(135deg,var(--primary),#7c3aed);border-radius:0.5rem;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.875rem;color:white}
-    .main{padding:1.5rem;max-width:1400px;margin:0 auto}
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:1.5rem}
-    .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:0.75rem;padding:1.25rem}
-    .stat-card h3{font-size:0.75rem;color:var(--text-muted);font-weight:600;margin-bottom:0.5rem;text-transform:uppercase;letter-spacing:0.05em}
-    .stat-value{font-size:1.75rem;font-weight:800}
-    .stat-change{font-size:0.875rem;margin-top:0.25rem}
-    .stat-change.positive{color:var(--success)}
-    .stat-change.negative{color:var(--danger)}
-    .section{background:var(--bg-card);border:1px solid var(--border);border-radius:0.75rem;padding:1.25rem;margin-bottom:1rem}
-    .section h2{font-size:1.125rem;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
-    .agent-table{width:100%;border-collapse:collapse;font-size:0.875rem}
-    .agent-table th,.agent-table td{text-align:left;padding:0.875rem;border-bottom:1px solid var(--border)}
-    .agent-table th{font-size:0.6875rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.05em}
-    .agent-table tr:last-child td{border-bottom:none}
-    .status-badge{display:inline-flex;align-items:center;gap:0.375rem;padding:0.25rem 0.625rem;border-radius:9999px;font-size:0.6875rem;font-weight:600}
-    .status-badge.running{background:rgba(34,197,94,0.2);color:var(--success)}
-    .status-badge.idle{background:rgba(245,158,11,0.2);color:var(--warning)}
-    .status-dot{width:5px;height:5px;border-radius:50%;background:currentColor}
-    .cost-bar{display:flex;height:1.75rem;border-radius:0.5rem;overflow:hidden;margin:1rem 0}
-    .cost-segment{display:flex;align-items:center;justify-content:center;color:white;font-size:0.6875rem;font-weight:600}
-    .cost-legend{display:flex;gap:1rem;margin-top:0.75rem;flex-wrap:wrap}
-    .legend-item{display:flex;align-items:center;gap:0.375rem;font-size:0.8125rem}
-    .legend-color{width:10px;height:10px;border-radius:2px}
-    .quick-actions{display:flex;gap:0.75rem;flex-wrap:wrap}
-    .btn{padding:0.5rem 1rem;border-radius:0.375rem;font-size:0.875rem;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid var(--border);background:transparent;color:var(--text)}
-    .btn:hover{background:rgba(255,255,255,0.05)}
-    .btn-primary{background:var(--primary);border-color:var(--primary);color:white}
-    .btn-primary:hover{background:var(--primary-dark)}
-    .btn-sm{padding:0.375rem 0.75rem;font-size:0.8125rem}
-    @media(max-width:640px){.main{padding:1rem}.stats-grid{grid-template-columns:1fr}.agent-table{font-size:0.8125rem}.agent-table th,.agent-table td{padding:0.625rem 0.375rem}.header{padding:1rem}}
+    /* ============================================
+       CSS VARIABLES & DESIGN SYSTEM
+       ============================================ */
+    :root {
+      /* Core colors - Dark mission control theme */
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-tertiary: #1a1a24;
+      --bg-card: #16161f;
+      --bg-hover: #1e1e2a;
+      --bg-input: #0f0f15;
+      
+      /* Accent gradients */
+      --accent-blue: #3b82f6;
+      --accent-purple: #8b5cf6;
+      --accent-cyan: #06b6d4;
+      --accent-pink: #ec4899;
+      --accent-emerald: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-rose: #f43f5e;
+      
+      /* Gradient combinations */
+      --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      --gradient-success: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+      --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      --gradient-danger: linear-gradient(135deg, #f43f5e 0%, #ec4899 100%);
+      --gradient-dark: linear-gradient(180deg, #12121a 0%, #0a0a0f 100%);
+      --gradient-card: linear-gradient(145deg, #1a1a24 0%, #16161f 100%);
+      --gradient-glow: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.15) 0%, transparent 70%);
+      
+      /* Text colors */
+      --text-primary: #f8fafc;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --text-disabled: #475569;
+      
+      /* Border colors */
+      --border-primary: rgba(148, 163, 184, 0.1);
+      --border-hover: rgba(148, 163, 184, 0.2);
+      --border-focus: rgba(59, 130, 246, 0.5);
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+      --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.3);
+      --shadow-glow-purple: 0 0 40px rgba(139, 92, 246, 0.3);
+      
+      /* Spacing */
+      --space-1: 0.25rem;
+      --space-2: 0.5rem;
+      --space-3: 0.75rem;
+      --space-4: 1rem;
+      --space-5: 1.25rem;
+      --space-6: 1.5rem;
+      --space-8: 2rem;
+      --space-10: 2.5rem;
+      --space-12: 3rem;
+      
+      /* Border radius */
+      --radius-sm: 0.375rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --radius-full: 9999px;
+      
+      /* Transitions */
+      --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slower: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ============================================
+       BASE STYLES & RESET
+       ============================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      overflow-x: hidden;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-secondary);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* ============================================
+       UTILITY CLASSES
+       ============================================ */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    .flex { display: flex; }
+    .flex-col { flex-direction: column; }
+    .items-center { align-items: center; }
+    .justify-center { justify-content: center; }
+    .justify-between { justify-content: space-between; }
+    .gap-2 { gap: var(--space-2); }
+    .gap-3 { gap: var(--space-3); }
+    .gap-4 { gap: var(--space-4); }
+
+    /* ============================================
+       ANIMATIONS & KEYFRAMES
+       ============================================ */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes pulse-glow {
+      0%, 100% {
+        box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      }
+      50% {
+        box-shadow: 0 0 40px rgba(16, 185, 129, 0.8);
+      }
+    }
+
+    @keyframes pulse-ring {
+      0% {
+        transform: scale(0.8);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(2);
+        opacity: 0;
+      }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes gradient-shift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    @keyframes scanline {
+      0% { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+
+    /* Animation utilities */
+    .animate-fadeIn { animation: fadeIn 0.5s ease-out forwards; }
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fadeInDown { animation: fadeInDown 0.6s ease-out forwards; }
+    .animate-scaleIn { animation: scaleIn 0.4s ease-out forwards; }
+    .animate-pulse { animation: pulse 2s ease-in-out infinite; }
+    .animate-spin { animation: spin 1s linear infinite; }
+    .animate-float { animation: float 3s ease-in-out infinite; }
+
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+    .stagger-4 { animation-delay: 0.4s; }
+    .stagger-5 { animation-delay: 0.5s; }
+
+    /* ============================================
+       LOGIN SCREEN
+       ============================================ */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-primary);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Animated background grid */
+    .login-bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      animation: shimmer 20s linear infinite;
+    }
+
+    /* Gradient orbs */
+    .login-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.4;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .login-orb-1 {
+      width: 400px;
+      height: 400px;
+      background: var(--accent-blue);
+      top: -100px;
+      right: -100px;
+      animation-delay: 0s;
+    }
+
+    .login-orb-2 {
+      width: 300px;
+      height: 300px;
+      background: var(--accent-purple);
+      bottom: -50px;
+      left: -50px;
+      animation-delay: -4s;
+    }
+
+    .login-orb-3 {
+      width: 200px;
+      height: 200px;
+      background: var(--accent-cyan);
+      top: 50%;
+      left: 30%;
+      opacity: 0.2;
+      animation-delay: -2s;
+    }
+
+    /* Scanline effect */
+    .login-scanline {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .login-scanline::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+      animation: scanline 8s linear infinite;
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 420px;
+      padding: var(--space-8);
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-2xl);
+      box-shadow: var(--shadow-lg), 0 0 80px rgba(59, 130, 246, 0.1);
+      animation: scaleIn 0.5s ease-out;
+    }
+
+    .login-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: var(--radius-2xl);
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(139, 92, 246, 0.5), transparent 50%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .login-logo {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto var(--space-6);
+      background: var(--gradient-primary);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+      animation: pulse-glow 3s ease-in-out infinite;
+    }
+
+    .login-logo i {
+      width: 32px;
+      height: 32px;
+      color: white;
+    }
+
+    .login-title {
+      font-size: 1.75rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: var(--space-2);
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .login-subtitle {
+      font-size: 0.9375rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: var(--space-8);
+    }
+
+    .login-form {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: var(--space-4) var(--space-4) var(--space-4) 2.75rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      transition: all var(--transition-base);
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .input-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-icon {
+      position: absolute;
+      left: var(--space-4);
+      bottom: var(--space-4);
+      color: var(--text-muted);
+      pointer-events: none;
+      transition: color var(--transition-base);
+    }
+
+    .input-group input:focus + .input-icon,
+    .input-group input:not(:placeholder-shown) + .input-icon {
+      color: var(--accent-blue);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      padding: var(--space-4) var(--space-6);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      border-radius: var(--radius-lg);
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border: 1px solid var(--border-primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1px solid transparent;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .btn-sm {
+      padding: var(--space-2) var(--space-4);
+      font-size: 0.8125rem;
+    }
+
+    .btn-lg {
+      padding: var(--space-4) var(--space-8);
+      font-size: 1rem;
+    }
+
+    .btn-full {
+      width: 100%;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+
+    .login-error {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-3) var(--space-4);
+      background: rgba(244, 63, 94, 0.1);
+      border: 1px solid rgba(244, 63, 94, 0.2);
+      border-radius: var(--radius-lg);
+      color: var(--accent-rose);
+      font-size: 0.875rem;
+      animation: shake 0.5s ease-out;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .login-security-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-2);
+      margin-top: var(--space-6);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       DASHBOARD LAYOUT
+       ============================================ */
+    .dashboard {
+      display: none;
+      min-height: 100vh;
+      background: var(--bg-primary);
+    }
+
+    .dashboard.active {
+      display: flex;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: 260px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-primary);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      inset: 0 auto 0 0;
+      z-index: 50;
+      transition: transform var(--transition-slow);
+    }
+
+    .sidebar-header {
+      padding: var(--space-6);
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .sidebar-logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: var(--shadow-glow);
+    }
+
+    .sidebar-logo-icon i {
+      width: 20px;
+      height: 20px;
+      color: white;
+    }
+
+    .sidebar-logo-text {
+      font-weight: 700;
+      font-size: 1.125rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .sidebar-logo-subtext {
+      font-size: 0.6875rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: var(--space-4);
+      overflow-y: auto;
+    }
+
+    .nav-section {
+      margin-bottom: var(--space-6);
+    }
+
+    .nav-section-title {
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      padding: 0 var(--space-4);
+      margin-bottom: var(--space-3);
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3) var(--space-4);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      margin-bottom: var(--space-1);
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .nav-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--bg-tertiary);
+      color: var(--accent-blue);
+    }
+
+    .nav-item i {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .nav-badge {
+      margin-left: auto;
+      padding: var(--space-1) var(--space-2);
+      background: var(--accent-rose);
+      color: white;
+      font-size: 0.6875rem;
+      font-weight: 700;
+      border-radius: var(--radius-full);
+      min-width: 20px;
+      text-align: center;
+    }
+
+    .nav-item.active .nav-badge {
+      background: var(--accent-blue);
+    }
+
+    .sidebar-footer {
+      padding: var(--space-4);
+      border-top: 1px solid var(--border-primary);
+    }
+
+    .user-card {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all var(--transition-base);
+    }
+
+    .user-card:hover {
+      background: var(--bg-hover);
+    }
+
+    .user-avatar {
+      width: 36px;
+      height: 36px;
+      background: var(--gradient-primary);
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: white;
+    }
+
+    .user-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .user-name {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-role {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Main content */
+    .main-content {
+      flex: 1;
+      margin-left: 260px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Top header */
+    .top-header {
+      height: 72px;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-primary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-6);
+      position: sticky;
+      top: 0;
+      z-index: 40;
+    }
+
+    .header-search {
+      position: relative;
+      width: 320px;
+    }
+
+    .header-search input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4) var(--space-3) 2.5rem;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: 0.875rem;
+      transition: all var(--transition-base);
+    }
+
+    .header-search input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      background: var(--bg-input);
+    }
+
+    .header-search input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .header-search i {
+      position: absolute;
+      left: var(--space-3);
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 16px;
+      height: 16px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+    }
+
+    .header-btn {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+    }
+
+    .header-btn:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+      border-color: var(--border-hover);
+    }
+
+    .header-btn i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .header-btn-badge {
+      position: absolute;
+      top: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      background: var(--accent-rose);
+      border-radius: var(--radius-full);
+      border: 2px solid var(--bg-secondary);
+    }
+
+    .header-btn-badge.pulse::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: var(--radius-full);
+      background: var(--accent-rose);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    /* Content area */
+    .content {
+      flex: 1;
+      padding: var(--space-6);
+      overflow-y: auto;
+    }
+
+    .content-header {
+      margin-bottom: var(--space-6);
+    }
+
+    .content-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: var(--space-1);
+    }
+
+    .content-subtitle {
+      color: var(--text-secondary);
+      font-size: 0.9375rem;
+    }
+
+    /* ============================================
+       STATS GRID
+       ============================================ */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+      margin-bottom: var(--space-6);
+    }
+
+    .stat-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-base);
+      animation: fadeInUp 0.5s ease-out forwards;
+      opacity: 0;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.1s; }
+    .stat-card:nth-child(2) { animation-delay: 0.2s; }
+    .stat-card:nth-child(3) { animation-delay: 0.3s; }
+    .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .stat-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--space-4);
+    }
+
+    .stat-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon.blue {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .stat-icon.emerald {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+    }
+
+    .stat-icon.amber {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+
+    .stat-icon.purple {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--accent-purple);
+    }
+
+    .stat-icon i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .stat-trend {
+      display: flex;
+      align-items: center;
+      gap: var(--space-1);
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: var(--space-1) var(--space-2);
+      border-radius: var(--radius-full);
+    }
+
+    .stat-trend.up {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+    }
+
+    .stat-trend.down {
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--accent-rose);
+    }
+
+    .stat-trend i {
+      width: 14px;
+      height: 14px;
+    }
+
+    .stat-value {
+      font-size: 1.875rem;
+      font-weight: 800;
+      margin-bottom: var(--space-1);
+      font-feature-settings: 'tnum';
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .stat-sparkline {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40px;
+      opacity: 0.3;
+    }
+
+    /* ============================================
+       SECTION CARDS
+       ============================================ */
+    .section-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .section-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      overflow: hidden;
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .section-card:nth-child(1) { animation-delay: 0.5s; }
+    .section-card:nth-child(2) { animation-delay: 0.6s; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .section-title i {
+      width: 20px;
+      height: 20px;
+      color: var(--accent-blue);
+    }
+
+    .section-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .section-content {
+      padding: var(--space-5);
+    }
+
+    /* ============================================
+       AGENT TABLE
+       ============================================ */
+    .agent-table-container {
+      overflow-x: auto;
+    }
+
+    .agent-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+
+    .agent-table th {
+      text-align: left;
+      padding: var(--space-3) var(--space-4);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-primary);
+      white-space: nowrap;
+    }
+
+    .agent-table td {
+      padding: var(--space-4);
+      border-bottom: 1px solid var(--border-primary);
+      vertical-align: middle;
+    }
+
+    .agent-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .agent-table tr:hover td {
+      background: var(--bg-hover);
+    }
+
+    .agent-cell {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+    }
+
+    .agent-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.875rem;
+      flex-shrink: 0;
+    }
+
+    .agent-avatar.blue {
+      background: rgba(59, 130, 246, 0.15);
+      color: var(--accent-blue);
+    }
+
+    .agent-avatar.purple {
+      background: rgba(139, 92, 246, 0.15);
+      color: var(--accent-purple);
+    }
+
+    .agent-avatar.emerald {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-emerald);
+    }
+
+    .agent-avatar.amber {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-amber);
+    }
+
+    .agent-info {
+      min-width: 0;
+    }
+
+    .agent-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .agent-id {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Status badge */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .status-badge.running {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+    }
+
+    .status-badge.idle {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+
+    .status-badge.error {
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--accent-rose);
+    }
+
+    .status-badge.stopped {
+      background: var(--bg-tertiary);
+      color: var(--text-muted);
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: var(--radius-full);
+      position: relative;
+    }
+
+    .status-badge.running .status-dot {
+      background: var(--accent-emerald);
+    }
+
+    .status-badge.running .status-dot::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: var(--radius-full);
+      background: var(--accent-emerald);
+      animation: pulse-ring 2s ease-out infinite;
+    }
+
+    .status-badge.idle .status-dot {
+      background: var(--accent-amber);
+    }
+
+    .status-badge.error .status-dot {
+      background: var(--accent-rose);
+    }
+
+    .status-badge.stopped .status-dot {
+      background: var(--text-muted);
+    }
+
+    .agent-cost {
+      font-weight: 600;
+      font-feature-settings: 'tnum';
+    }
+
+    .agent-uptime {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .agent-actions {
+      display: flex;
+      gap: var(--space-2);
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .action-btn:hover {
+      background: var(--bg-hover);
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+    }
+
+    .action-btn i {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* ============================================
+       ACTIVITY FEED
+       ============================================ */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .activity-item {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-3);
+      border-radius: var(--radius-lg);
+      transition: all var(--transition-base);
+    }
+
+    .activity-item:hover {
+      background: var(--bg-hover);
+    }
+
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .activity-icon.success {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+    }
+
+    .activity-icon.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+
+    .activity-icon.error {
+      background: rgba(244, 63, 94, 0.1);
+      color: var(--accent-rose);
+    }
+
+    .activity-icon.info {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .activity-icon i {
+      width: 16px;
+      height: 16px;
+    }
+
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .activity-text {
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      margin-bottom: var(--space-1);
+    }
+
+    .activity-text strong {
+      font-weight: 600;
+    }
+
+    .activity-meta {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .activity-dot {
+      width: 3px;
+      height: 3px;
+      background: var(--text-muted);
+      border-radius: var(--radius-full);
+    }
+
+    /* ============================================
+       CHARTS SECTION
+       ============================================ */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-6);
+      margin-bottom: var(--space-6);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 280px;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+      margin-top: var(--space-4);
+      padding-top: var(--space-4);
+      border-top: 1px solid var(--border-primary);
+    }
+
+    .chart-legend-item {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .chart-legend-color {
+      width: 10px;
+      height: 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .chart-legend-value {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-left: var(--space-1);
+    }
+
+    /* Budget tracker */
+    .budget-tracker {
+      margin-top: var(--space-4);
+    }
+
+    .budget-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: var(--space-3);
+    }
+
+    .budget-label {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .budget-value {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+
+    .budget-bar {
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .budget-progress {
+      height: 100%;
+      border-radius: var(--radius-full);
+      transition: width 1s ease-out;
+      position: relative;
+    }
+
+    .budget-progress::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      animation: shimmer 2s infinite;
+    }
+
+    .budget-progress.success {
+      background: var(--gradient-success);
+    }
+
+    .budget-progress.warning {
+      background: var(--gradient-warning);
+    }
+
+    .budget-progress.danger {
+      background: var(--gradient-danger);
+    }
+
+    /* ============================================
+       QUICK ACTIONS
+       ============================================ */
+    .quick-actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-4);
+    }
+
+    .quick-action-card {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      padding: var(--space-5);
+      text-align: center;
+      cursor: pointer;
+      transition: all var(--transition-base);
+      animation: fadeInUp 0.6s ease-out forwards;
+      opacity: 0;
+    }
+
+    .quick-action-card:nth-child(1) { animation-delay: 0.7s; }
+    .quick-action-card:nth-child(2) { animation-delay: 0.75s; }
+    .quick-action-card:nth-child(3) { animation-delay: 0.8s; }
+    .quick-action-card:nth-child(4) { animation-delay: 0.85s; }
+
+    .quick-action-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .quick-action-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto var(--space-3);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all var(--transition-base);
+    }
+
+    .quick-action-card:hover .quick-action-icon {
+      transform: scale(1.1);
+    }
+
+    .quick-action-icon.blue {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--accent-blue);
+    }
+
+    .quick-action-icon.purple {
+      background: rgba(139, 92, 246, 0.1);
+      color: var(--accent-purple);
+    }
+
+    .quick-action-icon.emerald {
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-emerald);
+    }
+
+    .quick-action-icon.amber {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--accent-amber);
+    }
+
+    .quick-action-icon i {
+      width: 24px;
+      height: 24px;
+    }
+
+    .quick-action-title {
+      font-weight: 600;
+      font-size: 0.9375rem;
+      margin-bottom: var(--space-1);
+    }
+
+    .quick-action-desc {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       MODAL/OVERLAY
+       ============================================ */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: var(--space-4);
+    }
+
+    .modal-overlay.active {
+      display: flex;
+      animation: fadeIn 0.2s ease-out;
+    }
+
+    .modal {
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-2xl);
+      width: 100%;
+      max-width: 480px;
+      max-height: 90vh;
+      overflow: hidden;
+      animation: scaleIn 0.3s ease-out;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--space-5);
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-md);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+
+    .modal-close:hover {
+      background: var(--bg-hover);
+      color: var(--text-primary);
+    }
+
+    .modal-close i {
+      width: 16px;
+      height: 16px;
+    }
+
+    .modal-body {
+      padding: var(--space-5);
+      overflow-y: auto;
+    }
+
+    .modal-footer {
+      display: flex;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      border-top: 1px solid var(--border-primary);
+      justify-content: flex-end;
+    }
+
+    /* Form elements */
+    .form-group {
+      margin-bottom: var(--space-4);
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-2);
+    }
+
+    .form-input {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-input);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      transition: all var(--transition-base);
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .form-select {
+      width: 100%;
+      padding: var(--space-3) var(--space-4);
+      background: var(--bg-input);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-primary);
+      font-size: 0.9375rem;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right var(--space-3) center;
+    }
+
+    .form-select:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+    }
+
+    /* ============================================
+       LOADING STATES
+       ============================================ */
+    .loading-skeleton {
+      background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--bg-hover) 50%, var(--bg-tertiary) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-md);
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--border-primary);
+      border-top-color: var(--accent-blue);
+      border-radius: var(--radius-full);
+      animation: spin 0.8s linear infinite;
+    }
+
+    /* ============================================
+       EMPTY STATES
+       ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: var(--space-10);
+    }
+
+    .empty-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto var(--space-4);
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-xl);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+
+    .empty-icon i {
+      width: 32px;
+      height: 32px;
+    }
+
+    .empty-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: var(--space-1);
+    }
+
+    .empty-desc {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       RESPONSIVE STYLES
+       ============================================ */
+    @media (max-width: 1280px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      
+      .section-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .charts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .quick-actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+      }
+      
+      .mobile-menu-btn {
+        display: flex !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .header-search {
+        display: none;
+      }
+      
+      .content {
+        padding: var(--space-4);
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--space-3);
+      }
+      
+      .agent-table-container {
+        margin: 0 calc(-1 * var(--space-4));
+        padding: 0 var(--space-4);
+      }
+      
+      .quick-actions-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Mobile menu button (hidden on desktop) */
+    .mobile-menu-btn {
+      display: none;
+      width: 40px;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-lg);
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    .mobile-menu-btn i {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Sidebar overlay for mobile */
+    .sidebar-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(10, 10, 15, 0.8);
+      backdrop-filter: blur(4px);
+      z-index: 45;
+      display: none;
+      opacity: 0;
+      transition: opacity var(--transition-base);
+    }
+
+    .sidebar-overlay.active {
+      display: block;
+      opacity: 1;
+    }
+
+    /* Toast notifications */
+    .toast-container {
+      position: fixed;
+      top: var(--space-6);
+      right: var(--space-6);
+      z-index: 200;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-3);
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-5);
+      background: var(--gradient-card);
+      border: 1px solid var(--border-primary);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-lg);
+      animation: slideInLeft 0.3s ease-out;
+      min-width: 320px;
+      max-width: 480px;
+    }
+
+    .toast.success {
+      border-left: 3px solid var(--accent-emerald);
+    }
+
+    .toast.error {
+      border-left: 3px solid var(--accent-rose);
+    }
+
+    .toast.warning {
+      border-left: 3px solid var(--accent-amber);
+    }
+
+    .toast.info {
+      border-left: 3px solid var(--accent-blue);
+    }
+
+    .toast-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+    }
+
+    .toast.success .toast-icon {
+      color: var(--accent-emerald);
+    }
+
+    .toast.error .toast-icon {
+      color: var(--accent-rose);
+    }
+
+    .toast.warning .toast-icon {
+      color: var(--accent-amber);
+    }
+
+    .toast.info .toast-icon {
+      color: var(--accent-blue);
+    }
+
+    .toast-content {
+      flex: 1;
+    }
+
+    .toast-title {
+      font-weight: 600;
+      font-size: 0.875rem;
+      margin-bottom: var(--space-1);
+    }
+
+    .toast-message {
+      font-size: 0.8125rem;
+      color: var(--text-secondary);
+    }
+
+    .toast-close {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color var(--transition-fast);
+    }
+
+    .toast-close:hover {
+      color: var(--text-primary);
+    }
+
+    .toast-close i {
+      width: 16px;
+      height: 16px;
+    }
   </style>
 </head>
 <body>
-  <div class="login-screen" id="loginScreen">
-    <div class="login-box">
-      <div class="header-logo" style="margin:0 auto 1rem">TP</div>
-      <h1>TinyPrompters</h1>
-      <p class="subtitle">Agent Mission Control</p>
-      <input type="password" id="passwordInput" placeholder="Enter password..." autocomplete="current-password">
-      <button onclick="login()">Sign In</button>
-      <div class="error-msg" id="loginError"></div>
+  <!-- ============================================
+       LOGIN SCREEN
+       ============================================ -->
+  <div class="login-container" id="loginScreen">
+    <div class="login-bg-grid"></div>
+    <div class="login-orb login-orb-1"></div>
+    <div class="login-orb login-orb-2"></div>
+    <div class="login-orb login-orb-3"></div>
+    <div class="login-scanline"></div>
+    
+    <div class="login-card">
+      <div class="login-logo">
+        <i data-lucide="bot"></i>
+      </div>
+      <h1 class="login-title">Mission Control</h1>
+      <p class="login-subtitle">TinyPrompters Agent Dashboard</p>
+      
+      <form class="login-form" onsubmit="handleLogin(event)">
+        <div class="input-group">
+          <label for="password">Access Code</label>
+          <input 
+            type="password" 
+            id="passwordInput" 
+            placeholder="Enter your access code..."
+            autocomplete="current-password"
+            required
+          >
+          <i data-lucide="lock" class="input-icon"></i>
+        </div>
+        
+        <button type="submit" class="btn btn-primary btn-lg btn-full" id="loginBtn">
+          <i data-lucide="log-in"></i>
+          <span>Sign In</span>
+        </button>
+      </form>
+      
+      <div id="loginError" class="login-error" style="display: none;">
+        <i data-lucide="alert-circle"></i>
+        <span>Invalid access code. Please try again.</span>
+      </div>
+      
+      <div class="login-security-note">
+        <i data-lucide="shield-check" style="width: 14px; height: 14px;"></i>
+        <span>Secure client-side authentication</span>
+      </div>
     </div>
   </div>
 
+  <!-- ============================================
+       DASHBOARD
+       ============================================ -->
   <div class="dashboard" id="dashboard">
-    <header class="header">
-      <h1><span class="header-logo">TP</span>TinyPrompters</h1>
-      <div style="display:flex;gap:0.5rem">
-        <button class="btn btn-sm" onclick="refreshData()">Refresh</button>
-        <button class="btn btn-sm" onclick="logout()">Sign Out</button>
-      </div>
-    </header>
-
-    <main class="main">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <h3>Active Agents</h3>
-          <div class="stat-value" id="statAgents">2</div>
-          <div class="stat-change positive">+1 this week</div>
-        </div>
-        <div class="stat-card">
-          <h3>Today's Cost</h3>
-          <div class="stat-value" id="statToday">$1.60</div>
-          <div class="stat-change negative">+12% from yesterday</div>
-        </div>
-        <div class="stat-card">
-          <h3>This Month</h3>
-          <div class="stat-value" id="statMonth">$185.40</div>
-          <div class="stat-change positive">-8% under budget</div>
-        </div>
-        <div class="stat-card">
-          <h3>Uptime</h3>
-          <div class="stat-value">99.9%</div>
-          <div class="stat-change positive">All systems operational</div>
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <div class="sidebar-logo-icon">
+            <i data-lucide="bot"></i>
+          </div>
+          <div>
+            <div class="sidebar-logo-text">TinyPrompters</div>
+            <div class="sidebar-logo-subtext">Mission Control</div>
+          </div>
         </div>
       </div>
-
-      <div class="section">
-        <h2>🤖 Active Agents</h2>
-        <table class="agent-table">
-          <thead><tr><th>Agent</th><th>Status</th><th>Cost Today</th><th>Uptime</th><th>Last Active</th></tr></thead>
-          <tbody id="agentTable"></tbody>
-        </table>
-      </div>
-
-      <div class="section">
-        <h2>💰 Cost Breakdown</h2>
-        <div class="cost-bar">
-          <div class="cost-segment" style="width:65%;background:#3b82f6">Claude Opus</div>
-          <div class="cost-segment" style="width:24%;background:#8b5cf6">Claude Sonnet</div>
-          <div class="cost-segment" style="width:11%;background:#10b981">Kimi</div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Overview</div>
+          <button class="nav-item active" onclick="showSection('dashboard')">
+            <i data-lucide="layout-dashboard"></i>
+            <span>Dashboard</span>
+          </button>
+          <button class="nav-item" onclick="showSection('agents')">
+            <i data-lucide="cpu"></i>
+            <span>Agents</span>
+            <span class="nav-badge" id="agentCountBadge">3</span>
+          </button>
+          <button class="nav-item" onclick="showSection('analytics')">
+            <i data-lucide="bar-chart-3"></i>
+            <span>Analytics</span>
+          </button>
         </div>
-        <div class="cost-legend">
-          <div class="legend-item"><div class="legend-color" style="background:#3b82f6"></div><span>Claude Opus ($120.50)</span></div>
-          <div class="legend-item"><div class="legend-color" style="background:#8b5cf6"></div><span>Claude Sonnet ($45.20)</span></div>
-          <div class="legend-item"><div class="legend-color" style="background:#10b981"></div><span>Kimi ($19.70)</span></div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Management</div>
+          <button class="nav-item" onclick="showSection('deploy')">
+            <i data-lucide="rocket"></i>
+            <span>Deploy</span>
+          </button>
+          <button class="nav-item" onclick="showSection('logs')">
+            <i data-lucide="file-text"></i>
+            <span>Logs</span>
+          </button>
+          <button class="nav-item" onclick="showSection('settings')">
+            <i data-lucide="settings"></i>
+            <span>Settings</span>
+          </button>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Account</div>
+          <button class="nav-item" onclick="showSection('billing')">
+            <i data-lucide="credit-card"></i>
+            <span>Billing</span>
+          </button>
+          <button class="nav-item" onclick="showSection('api-keys')">
+            <i data-lucide="key"></i>
+            <span>API Keys</span>
+          </button>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-card" onclick="logout()">
+          <div class="user-avatar">TP</div>
+          <div class="user-info">
+            <div class="user-name">TinyPrompters</div>
+            <div class="user-role">Administrator</div>
+          </div>
+          <i data-lucide="log-out" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
         </div>
       </div>
+    </aside>
 
-      <div class="section">
-        <h2>⚡ Quick Actions</h2>
-        <div class="quick-actions">
-          <button class="btn btn-primary btn-sm">+ Deploy Agent</button>
-          <button class="btn btn-sm">View Logs</button>
-          <button class="btn btn-sm">API Keys</button>
-          <button class="btn btn-sm">Billing</button>
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- Main content -->
+    <main class="main-content">
+      <!-- Top header -->
+      <header class="top-header">
+        <div style="display: flex; align-items: center; gap: var(--space-3);">
+          <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleSidebar()">
+            <i data-lucide="menu"></i>
+          </button>
+          
+          <div class="header-search">
+            <i data-lucide="search"></i>
+            <input type="text" placeholder="Search agents, logs, settings..." id="searchInput">
+          </div>
+        </div>
+        
+        <div class="header-actions">
+          <button class="header-btn" onclick="refreshData()" title="Refresh Data">
+            <i data-lucide="refresh-cw"></i>
+          </button>
+          <button class="header-btn" onclick="showNotifications()" title="Notifications">
+            <i data-lucide="bell"></i>
+            <span class="header-btn-badge pulse" id="notificationBadge"></span>
+          </button>
+          <button class="header-btn" onclick="toggleTheme()" title="Toggle Theme">
+            <i data-lucide="moon"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Content area -->
+      <div class="content">
+        <!-- Page header -->
+        <div class="content-header">
+          <h1 class="content-title">Dashboard Overview</h1>
+          <p class="content-subtitle">Monitor your agents, costs, and system health in real-time</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon blue">
+                <i data-lucide="activity"></i>
+              </div>
+              <div class="stat-trend up">
+                <i data-lucide="trending-up"></i>
+                <span>+12%</span>
+              </div>
+            </div>
+            <div class="stat-value" id="statActiveAgents">2</div>
+            <div class="stat-label">Active Agents</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon emerald">
+                <i data-lucide="dollar-sign"></i>
+              </div>
+              <div class="stat-trend down">
+                <i data-lucide="trending-down"></i>
+                <span>-8%</span>
+              </div>
+            </div>
+            <div class="stat-value" id="statTodayCost">$24.50</div>
+            <div class="stat-label">Today's Cost</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon amber">
+                <i data-lucide="wallet"></i>
+              </div>
+              <div class="stat-trend up">
+                <i data-lucide="trending-up"></i>
+                <span>+5%</span>
+              </div>
+            </div>
+            <div class="stat-value" id="statMonthCost">$847.32</div>
+            <div class="stat-label">This Month</div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-header">
+              <div class="stat-icon purple">
+                <i data-lucide="zap"></i>
+              </div>
+              <div class="stat-trend up">
+                <i data-lucide="check-circle"></i>
+                <span>99.9%</span>
+              </div>
+            </div>
+            <div class="stat-value">99.9%</div>
+            <div class="stat-label">Uptime</div>
+          </div>
+        </div>
+
+        <!-- Main content grid -->
+        <div class="section-grid">
+          <!-- Agent Table -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <i data-lucide="bot"></i>
+                <span>Active Agents</span>
+              </div>
+              <div class="section-actions">
+                <button class="btn btn-secondary btn-sm" onclick="filterAgents('all')">All</button>
+                <button class="btn btn-ghost btn-sm" onclick="filterAgents('running')">Running</button>
+                <button class="btn btn-ghost btn-sm" onclick="showDeployModal()">
+                  <i data-lucide="plus" style="width: 14px; height: 14px;"></i>
+                  Deploy
+                </button>
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="agent-table-container">
+                <table class="agent-table">
+                  <thead>
+                    <tr>
+                      <th>Agent</th>
+                      <th>Status</th>
+                      <th>Cost Today</th>
+                      <th>Uptime</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="agentTableBody">
+                    <!-- Populated by JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- Activity Feed -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <i data-lucide="activity"></i>
+                <span>Recent Activity</span>
+              </div>
+              <div class="section-actions">
+                <button class="btn btn-ghost btn-sm" onclick="refreshActivity()">
+                  <i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i>
+                </button>
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="activity-list" id="activityList">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+          <!-- Cost by Model Chart -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <i data-lucide="pie-chart"></i>
+                <span>Cost by Model</span>
+              </div>
+              <div class="section-actions">
+                <button class="btn btn-ghost btn-sm">This Month</button>
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="chart-container">
+                <canvas id="costByModelChart"></canvas>
+              </div>
+              <div class="chart-legend" id="costLegend">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Daily Spend Chart -->
+          <div class="section-card">
+            <div class="section-header">
+              <div class="section-title">
+                <i data-lucide="bar-chart-2"></i>
+                <span>Daily Spend</span>
+              </div>
+              <div class="section-actions">
+                <button class="btn btn-ghost btn-sm">Last 7 Days</button>
+              </div>
+            </div>
+            <div class="section-content">
+              <div class="chart-container">
+                <canvas id="dailySpendChart"></canvas>
+              </div>
+              <div class="budget-tracker">
+                <div class="budget-header">
+                  <span class="budget-label">Monthly Budget</span>
+                  <span class="budget-value">$847 / $1,000</span>
+                </div>
+                <div class="budget-bar">
+                  <div class="budget-progress success" style="width: 84.7%;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="content-header" style="margin-top: var(--space-8);">
+          <h2 class="content-title" style="font-size: 1.125rem;">Quick Actions</h2>
+        </div>
+        
+        <div class="quick-actions-grid">
+          <div class="quick-action-card" onclick="showDeployModal()">
+            <div class="quick-action-icon blue">
+              <i data-lucide="rocket"></i>
+            </div>
+            <div class="quick-action-title">Deploy Agent</div>
+            <div class="quick-action-desc">Launch a new AI agent</div>
+          </div>
+          
+          <div class="quick-action-card" onclick="showSection('api-keys')">
+            <div class="quick-action-icon purple">
+              <i data-lucide="key"></i>
+            </div>
+            <div class="quick-action-title">API Keys</div>
+            <div class="quick-action-desc">Manage credentials</div>
+          </div>
+          
+          <div class="quick-action-card" onclick="showSection('billing')">
+            <div class="quick-action-icon emerald">
+              <i data-lucide="credit-card"></i>
+            </div>
+            <div class="quick-action-title">Billing</div>
+            <div class="quick-action-desc">View invoices & usage</div>
+          </div>
+          
+          <div class="quick-action-card" onclick="showLogsModal()">
+            <div class="quick-action-icon amber">
+              <i data-lucide="file-text"></i>
+            </div>
+            <div class="quick-action-title">View Logs</div>
+            <div class="quick-action-desc">Check agent activity</div>
+          </div>
         </div>
       </div>
     </main>
   </div>
 
-  <script>
-    const AGENTS=[
-      {id:'swarm-starters',name:'Swarm Starters',status:'running',cost:12.45,uptime:'99.9%',last:'2 min ago'},
-      {id:'swarm-followers',name:'Swarm Followers',status:'running',cost:8.32,uptime:'99.9%',last:'5 min ago'},
-      {id:'crosspilla',name:'Crosspilla',status:'idle',cost:0,uptime:'98.5%',last:'2 hours ago'}
-    ];
-    const PASS='tinyprompter2026';
-    const LS_KEY='tp_auth';
+  <!-- ============================================
+       MODALS
+       ============================================ -->
+  
+  <!-- Deploy Agent Modal -->
+  <div class="modal-overlay" id="deployModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Deploy New Agent</h3>
+        <button class="modal-close" onclick="closeModal('deployModal')">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Agent Name</label>
+          <input type="text" class="form-input" id="deployAgentName" placeholder="e.g., Customer Support Bot">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Model</label>
+          <select class="form-select" id="deployAgentModel">
+            <option value="claude-opus">Claude 3 Opus</option>
+            <option value="claude-sonnet" selected>Claude 3.5 Sonnet</option>
+            <option value="claude-haiku">Claude 3 Haiku</option>
+            <option value="kimi-k2">Kimi K2</option>
+            <option value="kimi-k1.5">Kimi K1.5</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Purpose</label>
+          <select class="form-select" id="deployAgentPurpose">
+            <option value="chat">Chat Support</option>
+            <option value="analysis">Data Analysis</option>
+            <option value="content">Content Generation</option>
+            <option value="code">Code Assistant</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('deployModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="deployAgent()">
+          <i data-lucide="rocket" style="width: 16px; height: 16px;"></i>
+          Deploy Agent
+        </button>
+      </div>
+    </div>
+  </div>
 
-    function init(){if(localStorage.getItem(LS_KEY)==='1')showDash();renderAgents();}
-    function login(){var p=document.getElementById('passwordInput').value;if(p===PASS){localStorage.setItem(LS_KEY,'1');showDash()}else{document.getElementById('loginError').textContent='Invalid password';}}
-    function showDash(){document.getElementById('loginScreen').style.display='none';document.getElementById('dashboard').classList.add('active');}
-    function logout(){localStorage.removeItem(LS_KEY);location.href='.';}
-    function refreshData(){renderAgents();}
-    function renderAgents(){var t=document.getElementById('agentTable');if(!t)return;t.innerHTML=AGENTS.map(function(a){return'<tr><td><strong>'+a.name+'</strong></td><td><span class="status-badge '+a.status+'"><span class="status-dot"></span>'+a.status+'</span></td><td>$'+a.cost.toFixed(2)+'</td><td>'+a.uptime+'</td><td>'+a.last+'</td></tr>';}).join('');document.getElementById('statAgents').textContent=AGENTS.filter(function(a){return a.status==='running'}).length;}
-    document.getElementById('passwordInput').addEventListener('keypress',function(e){if(e.key==='Enter')login();});
-    init();
+  <!-- View Logs Modal -->
+  <div class="modal-overlay" id="logsModal">
+    <div class="modal" style="max-width: 640px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Agent Logs</h3>
+        <button class="modal-close" onclick="closeModal('logsModal')">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="logsContent" style="background: var(--bg-primary); border-radius: var(--radius-lg); padding: var(--space-4); font-family: 'JetBrains Mono', monospace; font-size: 0.8125rem; line-height: 1.6; max-height: 400px; overflow-y: auto;">
+          <div style="color: var(--text-muted);">Select an agent to view logs...</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('logsModal')">Close</button>
+        <button class="btn btn-primary" onclick="downloadLogs()">
+          <i data-lucide="download" style="width: 16px; height: 16px;"></i>
+          Download
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- ============================================
+       JAVASCRIPT
+       ============================================ -->
+  <script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const CONFIG = {
+      PASSWORD: 'tinyprompter2026',
+      AUTH_KEY: 'tp_mission_control_auth',
+      AUTH_EXPIRY: 24 * 60 * 60 * 1000, // 24 hours
+      REFRESH_INTERVAL: 30000, // 30 seconds
+    };
+
+    // ============================================
+    // MOCK DATA
+    // ============================================
+    const MOCK_AGENTS = [
+      {
+        id: 'agent-001',
+        name: 'Swarm Starters',
+        avatar: 'SS',
+        avatarColor: 'blue',
+        status: 'running',
+        costToday: 12.45,
+        costMonth: 324.80,
+        uptime: '99.9%',
+        lastActive: '2 min ago',
+        model: 'Claude 3.5 Sonnet',
+        purpose: 'Community Engagement'
+      },
+      {
+        id: 'agent-002',
+        name: 'Swarm Followers',
+        avatar: 'SF',
+        avatarColor: 'purple',
+        status: 'running',
+        costToday: 8.32,
+        costMonth: 198.45,
+        uptime: '99.7%',
+        lastActive: '5 min ago',
+        model: 'Claude 3 Haiku',
+        purpose: 'Follow-up Automation'
+      },
+      {
+        id: 'agent-003',
+        name: 'Crosspilla',
+        avatar: 'CP',
+        avatarColor: 'emerald',
+        status: 'idle',
+        costToday: 0,
+        costMonth: 89.20,
+        uptime: '98.5%',
+        lastActive: '2 hours ago',
+        model: 'Kimi K2',
+        purpose: 'Cross-platform Posting'
+      },
+      {
+        id: 'agent-004',
+        name: 'Content Curator',
+        avatar: 'CC',
+        avatarColor: 'amber',
+        status: 'stopped',
+        costToday: 0,
+        costMonth: 234.87,
+        uptime: '95.2%',
+        lastActive: '1 day ago',
+        model: 'Claude 3 Opus',
+        purpose: 'Content Generation'
+      }
+    ];
+
+    const MOCK_ACTIVITY = [
+      { type: 'success', icon: 'check-circle', text: '<strong>Swarm Starters</strong> completed batch processing', time: '2 min ago', agent: 'Swarm Starters' },
+      { type: 'info', icon: 'zap', text: '<strong>Swarm Followers</strong> started new campaign', time: '5 min ago', agent: 'Swarm Followers' },
+      { type: 'warning', icon: 'alert-triangle', text: '<strong>Crosspilla</strong> rate limit approaching', time: '15 min ago', agent: 'Crosspilla' },
+      { type: 'success', icon: 'dollar-sign', text: 'Daily cost threshold updated to $50', time: '1 hour ago', agent: 'System' },
+      { type: 'error', icon: 'x-circle', text: '<strong>Content Curator</strong> encountered API error', time: '2 hours ago', agent: 'Content Curator' },
+      { type: 'success', icon: 'rocket', text: '<strong>Swarm Starters</strong> deployed successfully', time: '3 hours ago', agent: 'Swarm Starters' },
+      { type: 'info', icon: 'refresh-cw', text: 'System maintenance completed', time: '5 hours ago', agent: 'System' },
+    ];
+
+    const MOCK_LOGS = {
+      'agent-001': `[2025-02-02 22:38:12] INFO: Starting batch processing
+[2025-02-02 22:38:15] INFO: Connected to X API
+[2025-02-02 22:38:18] INFO: Processing 47 queued items
+[2025-02-02 22:39:45] SUCCESS: Completed 47/47 items
+[2025-02-02 22:39:46] INFO: Cost: $0.42 | Tokens: 2,847
+[2025-02-02 22:40:01] INFO: Waiting for new items...
+[2025-02-02 22:41:23] INFO: New batch received (12 items)
+[2025-02-02 22:41:24] INFO: Processing...`,
+      'agent-002': `[2025-02-02 22:35:01] INFO: Campaign "Q1 Engagement" started
+[2025-02-02 22:35:05] INFO: Target audience: 1,240 users
+[2025-02-02 22:36:12] INFO: Sent 45 DMs
+[2025-02-02 22:37:30] INFO: Response rate: 12%
+[2025-02-02 22:38:00] INFO: Continuing campaign...`,
+      'agent-003': `[2025-02-02 20:15:00] INFO: Cross-posting completed
+[2025-02-02 20:15:02] INFO: Posted to: X, LinkedIn, Discord
+[2025-02-02 20:15:05] WARNING: Rate limit: 45 requests remaining
+[2025-02-02 20:15:10] INFO: Entering idle mode
+[2025-02-02 22:30:00] INFO: Scheduled post triggered`,
+    };
+
+    // ============================================
+    // STATE
+    // ============================================
+    let state = {
+      agents: [...MOCK_AGENTS],
+      activity: [...MOCK_ACTIVITY],
+      currentFilter: 'all',
+      charts: {},
+      refreshTimer: null
+    };
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      checkAuth();
+      
+      // Setup event listeners
+      document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') handleLogin(e);
+      });
+      
+      // Auto-refresh every 30 seconds
+      state.refreshTimer = setInterval(refreshData, CONFIG.REFRESH_INTERVAL);
+    });
+
+    // ============================================
+    // AUTHENTICATION
+    // ============================================
+    function checkAuth() {
+      const auth = localStorage.getItem(CONFIG.AUTH_KEY);
+      if (auth) {
+        const authData = JSON.parse(auth);
+        if (Date.now() - authData.timestamp < CONFIG.AUTH_EXPIRY) {
+          showDashboard();
+          return;
+        }
+        localStorage.removeItem(CONFIG.AUTH_KEY);
+      }
+      showLogin();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const password = document.getElementById('passwordInput').value;
+      const btn = document.getElementById('loginBtn');
+      const error = document.getElementById('loginError');
+      
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>';
+      
+      setTimeout(() => {
+        if (password === CONFIG.PASSWORD) {
+          localStorage.setItem(CONFIG.AUTH_KEY, JSON.stringify({
+            timestamp: Date.now()
+          }));
+          error.style.display = 'none';
+          showDashboard();
+        } else {
+          error.style.display = 'flex';
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="log-in"></i><span>Sign In</span>';
+          lucide.createIcons();
+          document.getElementById('passwordInput').value = '';
+          document.getElementById('passwordInput').focus();
+        }
+      }, 500);
+    }
+
+    function logout() {
+      localStorage.removeItem(CONFIG.AUTH_KEY);
+      showLogin();
+      showToast('Signed out successfully', 'info');
+    }
+
+    function showLogin() {
+      document.getElementById('loginScreen').style.display = 'flex';
+      document.getElementById('dashboard').classList.remove('active');
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('loginBtn').disabled = false;
+      document.getElementById('loginBtn').innerHTML = '<i data-lucide="log-in"></i><span>Sign In</span>';
+      document.getElementById('loginError').style.display = 'none';
+      lucide.createIcons();
+    }
+
+    function showDashboard() {
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').classList.add('active');
+      
+      // Initialize dashboard
+      renderAgents();
+      renderActivity();
+      initCharts();
+      updateStats();
+      
+      lucide.createIcons();
+    }
+
+    // ============================================
+    // RENDER FUNCTIONS
+    // ============================================
+    function renderAgents() {
+      const tbody = document.getElementById('agentTableBody');
+      const filteredAgents = state.currentFilter === 'all' 
+        ? state.agents 
+        : state.agents.filter(a => a.status === state.currentFilter);
+      
+      tbody.innerHTML = filteredAgents.map(agent => `
+        <tr>
+          <td>
+            <div class="agent-cell">
+              <div class="agent-avatar ${agent.avatarColor}">${agent.avatar}</div>
+              <div class="agent-info">
+                <div class="agent-name">${agent.name}</div>
+                <div class="agent-id">${agent.id}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="status-badge ${agent.status}">
+              <span class="status-dot"></span>
+              ${agent.status.charAt(0).toUpperCase() + agent.status.slice(1)}
+            </span>
+          </td>
+          <td class="agent-cost">$${agent.costToday.toFixed(2)}</td>
+          <td class="agent-uptime">${agent.uptime}</td>
+          <td>
+            <div class="agent-actions">
+              <button class="action-btn" onclick="viewLogs('${agent.id}')" title="View Logs">
+                <i data-lucide="file-text"></i>
+              </button>
+              <button class="action-btn" onclick="restartAgent('${agent.id}')" title="Restart">
+                <i data-lucide="refresh-cw"></i>
+              </button>
+              <button class="action-btn" onclick="configureAgent('${agent.id}')" title="Configure">
+                <i data-lucide="settings"></i>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+      
+      lucide.createIcons();
+    }
+
+    function renderActivity() {
+      const list = document.getElementById('activityList');
+      
+      list.innerHTML = state.activity.map(item => `
+        <div class="activity-item">
+          <div class="activity-icon ${item.type}">
+            <i data-lucide="${item.icon}"></i>
+          </div>
+          <div class="activity-content">
+            <div class="activity-text">${item.text}</div>
+            <div class="activity-meta">
+              <span>${item.time}</span>
+              <span class="activity-dot"></span>
+              <span>${item.agent}</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+      
+      lucide.createIcons();
+    }
+
+    function updateStats() {
+      const activeAgents = state.agents.filter(a => a.status === 'running').length;
+      const todayCost = state.agents.reduce((sum, a) => sum + a.costToday, 0);
+      const monthCost = state.agents.reduce((sum, a) => sum + a.costMonth, 0);
+      
+      // Animate counter
+      animateCounter('statActiveAgents', activeAgents);
+      animateCounter('statTodayCost', `$${todayCost.toFixed(2)}`, true);
+      animateCounter('statMonthCost', `$${monthCost.toFixed(2)}`, true);
+      
+      // Update badge
+      document.getElementById('agentCountBadge').textContent = state.agents.length;
+    }
+
+    function animateCounter(id, target, isString = false) {
+      const el = document.getElementById(id);
+      if (isString) {
+        el.textContent = target;
+        return;
+      }
+      
+      const start = parseInt(el.textContent) || 0;
+      const duration = 1000;
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(start + (target - start) * easeProgress);
+        
+        el.textContent = current;
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }
+      
+      requestAnimationFrame(update);
+    }
+
+    // ============================================
+    // CHARTS
+    // ============================================
+    function initCharts() {
+      // Cost by Model (Doughnut)
+      const ctx1 = document.getElementById('costByModelChart').getContext('2d');
+      state.charts.costByModel = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: ['Claude 3.5 Sonnet', 'Claude 3 Haiku', 'Kimi K2', 'Claude 3 Opus'],
+          datasets: [{
+            data: [324.80, 198.45, 89.20, 234.87],
+            backgroundColor: ['#3b82f6', '#8b5cf6', '#10b981', '#f59e0b'],
+            borderWidth: 0,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a24',
+              titleColor: '#f8fafc',
+              bodyColor: '#94a3b8',
+              borderColor: 'rgba(148, 163, 184, 0.1)',
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                label: (context) => ` $${context.raw.toFixed(2)} (${((context.raw / 847.32) * 100).toFixed(1)}%)`
+              }
+            }
+          }
+        }
+      });
+      
+      // Update legend
+      const legendData = [
+        { color: '#3b82f6', label: 'Claude 3.5 Sonnet', value: 324.80 },
+        { color: '#8b5cf6', label: 'Claude 3 Haiku', value: 198.45 },
+        { color: '#10b981', label: 'Kimi K2', value: 89.20 },
+        { color: '#f59e0b', label: 'Claude 3 Opus', value: 234.87 }
+      ];
+      
+      document.getElementById('costLegend').innerHTML = legendData.map(item => `
+        <div class="chart-legend-item">
+          <div class="chart-legend-color" style="background: ${item.color}"></div>
+          <span>${item.label}</span>
+          <span class="chart-legend-value">$${item.value.toFixed(2)}</span>
+        </div>
+      `).join('');
+
+      // Daily Spend (Bar)
+      const ctx2 = document.getElementById('dailySpendChart').getContext('2d');
+      state.charts.dailySpend = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          datasets: [{
+            label: 'Daily Spend',
+            data: [45.20, 38.90, 52.40, 41.30, 48.75, 35.60, 24.50],
+            backgroundColor: '#3b82f6',
+            borderRadius: 6,
+            borderSkipped: false
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#1a1a24',
+              titleColor: '#f8fafc',
+              bodyColor: '#94a3b8',
+              borderColor: 'rgba(148, 163, 184, 0.1)',
+              borderWidth: 1,
+              padding: 12,
+              callbacks: {
+                label: (context) => ` $${context.raw.toFixed(2)}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#64748b', font: { size: 11 } }
+            },
+            y: {
+              grid: { color: 'rgba(148, 163, 184, 0.05)' },
+              ticks: { 
+                color: '#64748b', 
+                font: { size: 11 },
+                callback: (value) => `$${value}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // ============================================
+    // ACTIONS
+    // ============================================
+    function refreshData() {
+      // Simulate data refresh
+      showToast('Refreshing data...', 'info');
+      
+      setTimeout(() => {
+        // Randomize some data for effect
+        state.agents.forEach(agent => {
+          if (agent.status === 'running') {
+            agent.costToday += Math.random() * 0.5;
+          }
+        });
+        
+        renderAgents();
+        updateStats();
+        
+        showToast('Data refreshed successfully', 'success');
+      }, 800);
+    }
+
+    function filterAgents(status) {
+      state.currentFilter = status;
+      renderAgents();
+      
+      // Update button states
+      document.querySelectorAll('.section-actions .btn').forEach(btn => {
+        btn.classList.remove('btn-secondary');
+        btn.classList.add('btn-ghost');
+      });
+      event.target.classList.remove('btn-ghost');
+      event.target.classList.add('btn-secondary');
+    }
+
+    function viewLogs(agentId) {
+      const logs = MOCK_LOGS[agentId] || `[2025-02-02 22:40:00] INFO: No logs available for this agent`;
+      const agent = state.agents.find(a => a.id === agentId);
+      
+      document.getElementById('logsContent').innerHTML = logs.split('\n').map(line => {
+        const color = line.includes('ERROR') ? 'var(--accent-rose)' : 
+                      line.includes('WARNING') ? 'var(--accent-amber)' : 
+                      line.includes('SUCCESS') ? 'var(--accent-emerald)' : 'var(--text-secondary)';
+        return `<div style="color: ${color}; margin-bottom: 4px;">${escapeHtml(line)}</div>`;
+      }).join('');
+      
+      showModal('logsModal');
+    }
+
+    function restartAgent(agentId) {
+      const agent = state.agents.find(a => a.id === agentId);
+      showToast(`Restarting ${agent.name}...`, 'info');
+      
+      setTimeout(() => {
+        agent.status = 'running';
+        renderAgents();
+        showToast(`${agent.name} restarted successfully`, 'success');
+        
+        // Add to activity
+        state.activity.unshift({
+          type: 'success',
+          icon: 'refresh-cw',
+          text: `<strong>${agent.name}</strong> restarted successfully`,
+          time: 'Just now',
+          agent: agent.name
+        });
+        renderActivity();
+      }, 1500);
+    }
+
+    function configureAgent(agentId) {
+      const agent = state.agents.find(a => a.id === agentId);
+      showToast(`Opening configuration for ${agent.name}...`, 'info');
+      // Would open configuration modal in full implementation
+    }
+
+    function showDeployModal() {
+      showModal('deployModal');
+    }
+
+    function showLogsModal() {
+      document.getElementById('logsContent').innerHTML = '<div style="color: var(--text-muted);">Select an agent from the table to view detailed logs...</div>';
+      showModal('logsModal');
+    }
+
+    function deployAgent() {
+      const name = document.getElementById('deployAgentName').value;
+      const model = document.getElementById('deployAgentModel').value;
+      const purpose = document.getElementById('deployAgentPurpose').value;
+      
+      if (!name) {
+        showToast('Please enter an agent name', 'error');
+        return;
+      }
+      
+      closeModal('deployModal');
+      showToast(`Deploying ${name}...`, 'info');
+      
+      setTimeout(() => {
+        const newAgent = {
+          id: `agent-${String(state.agents.length + 1).padStart(3, '0')}`,
+          name: name,
+          avatar: name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase(),
+          avatarColor: ['blue', 'purple', 'emerald', 'amber'][Math.floor(Math.random() * 4)],
+          status: 'running',
+          costToday: 0,
+          costMonth: 0,
+          uptime: '100%',
+          lastActive: 'Just now',
+          model: model,
+          purpose: purpose
+        };
+        
+        state.agents.unshift(newAgent);
+        renderAgents();
+        updateStats();
+        
+        // Add to activity
+        state.activity.unshift({
+          type: 'success',
+          icon: 'rocket',
+          text: `<strong>${name}</strong> deployed successfully`,
+          time: 'Just now',
+          agent: name
+        });
+        renderActivity();
+        
+        showToast(`${name} deployed successfully!`, 'success');
+        
+        // Reset form
+        document.getElementById('deployAgentName').value = '';
+      }, 2000);
+    }
+
+    function downloadLogs() {
+      showToast('Downloading logs...', 'info');
+      setTimeout(() => {
+        showToast('Logs downloaded successfully', 'success');
+      }, 800);
+    }
+
+    function refreshActivity() {
+      showToast('Activity feed refreshed', 'success');
+    }
+
+    function showSection(section) {
+      showToast(`${section.charAt(0).toUpperCase() + section.slice(1)} section coming soon`, 'info');
+      
+      // Update nav active state
+      document.querySelectorAll('.nav-item').forEach(item => {
+        item.classList.remove('active');
+      });
+      event.target.closest('.nav-item')?.classList.add('active');
+    }
+
+    function showNotifications() {
+      showToast('No new notifications', 'info');
+      document.getElementById('notificationBadge').style.display = 'none';
+    }
+
+    function toggleTheme() {
+      showToast('Theme toggle coming soon', 'info');
+    }
+
+    // ============================================
+    // MODAL UTILITIES
+    // ============================================
+    function showModal(id) {
+      document.getElementById(id).classList.add('active');
+      lucide.createIcons();
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('active');
+    }
+
+    // Close modal on overlay click
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.classList.remove('active');
+        }
+      });
+    });
+
+    // ============================================
+    // SIDEBAR (Mobile)
+    // ============================================
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+
+    function closeSidebar() {
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('sidebarOverlay').classList.remove('active');
+    }
+
+    // ============================================
+    // TOAST NOTIFICATIONS
+    // ============================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const icons = {
+        success: 'check-circle',
+        error: 'x-circle',
+        warning: 'alert-triangle',
+        info: 'info'
+      };
+      
+      const titles = {
+        success: 'Success',
+        error: 'Error',
+        warning: 'Warning',
+        info: 'Info'
+      };
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i data-lucide="${icons[type]}" class="toast-icon"></i>
+        <div class="toast-content">
+          <div class="toast-title">${titles[type]}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+          <i data-lucide="x"></i>
+        </button>
+      `;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+      
+      // Auto remove after 4 seconds
+      setTimeout(() => {
+        toast.style.animation = 'fadeIn 0.3s ease-out reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // ============================================
+    // UTILITIES
+    // ============================================
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Handle keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // ESC to close modals
+      if (e.key === 'Escape') {
+        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+          modal.classList.remove('active');
+        });
+      }
+      
+      // CMD/Ctrl + K for search
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        document.getElementById('searchInput')?.focus();
+      }
+      
+      // CMD/Ctrl + R for refresh
+      if ((e.metaKey || e.ctrlKey) && e.key === 'r') {
+        e.preventDefault();
+        refreshData();
+      }
+    });
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (state.refreshTimer) {
+        clearInterval(state.refreshTimer);
+      }
+    });
   </script>
 </body>
 </html>
